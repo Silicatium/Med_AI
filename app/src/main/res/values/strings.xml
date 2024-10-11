@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MedAI</string>
+    <string name="model_result">Результат</string>
+    <string name="analysis">Анализ</string>
+    <string name="load">Загрузить</string>
+</resources>
