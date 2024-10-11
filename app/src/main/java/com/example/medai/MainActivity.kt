@@ -1,20 +1,27 @@
 package com.example.medai
 
 import android.content.res.AssetManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var tflite : Interpreter
     private lateinit var tflitemodel : ByteBuffer
+    private val text_result : TextView = findViewById(R.id.textView_result)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         }
         tflitemodel = loadModelFile(this.assets, "model.tflite")
         tflite = Interpreter(tflitemodel)
+        modelWork()
     }
 
     private fun loadModelFile(assetManager: AssetManager, modelPath: String): ByteBuffer {
@@ -39,12 +47,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun modelWork() {
-//        var userVal: Float
-//        var inputVal: FloatArray = floatArrayOf(userVal)
-//        var outputVal: ByteBuffer = ByteBuffer.allocateDirect(4)
-//        outputVal.order(ByteOrder.nativeOrder())
-//        tflite.run(inputVal, outputVal)
-//        outputVal.rewind()
-//        var f:Float = outputVal.getFloat()
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.normal)
+        val resized_bitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, true)
+        val byteBuffer = ByteBuffer.allocateDirect(resized_bitmap.byteCount)
+        byteBuffer.order(ByteOrder.nativeOrder())
+        bitmap.copyPixelsToBuffer(byteBuffer)
+        byteBuffer.rewind()
+
+        val inputBuffer: TensorBuffer =
+            TensorBuffer.createFixedSize(tflite.getInputTensor(0).shape(), DataType.FLOAT32)
+        inputBuffer.loadBuffer(byteBuffer)
+        val outputBuffer =
+            TensorBuffer.createFixedSize(tflite.getOutputTensor(0).shape(), DataType.FLOAT32)
+
+        tflite.run(inputBuffer.buffer, outputBuffer.buffer)
+        val output = outputBuffer.floatArray
+        text_result.text = output.joinToString(", ") { it.toString() }
     }
 }
