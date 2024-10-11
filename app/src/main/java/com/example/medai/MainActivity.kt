@@ -21,7 +21,6 @@ import java.nio.channels.FileChannel
 class MainActivity : AppCompatActivity() {
     private lateinit var tflite : Interpreter
     private lateinit var tflitemodel : ByteBuffer
-    private val text_result : TextView = findViewById(R.id.textView_result)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,17 +50,17 @@ class MainActivity : AppCompatActivity() {
         val resized_bitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, true)
         val byteBuffer = ByteBuffer.allocateDirect(resized_bitmap.byteCount)
         byteBuffer.order(ByteOrder.nativeOrder())
-        bitmap.copyPixelsToBuffer(byteBuffer)
+        resized_bitmap.copyPixelsToBuffer(byteBuffer)
         byteBuffer.rewind()
 
         val inputBuffer: TensorBuffer =
             TensorBuffer.createFixedSize(tflite.getInputTensor(0).shape(), DataType.FLOAT32)
         inputBuffer.loadBuffer(byteBuffer)
-        val outputBuffer =
-            TensorBuffer.createFixedSize(tflite.getOutputTensor(0).shape(), DataType.FLOAT32)
-
-        tflite.run(inputBuffer.buffer, outputBuffer.buffer)
-        val output = outputBuffer.floatArray
-        text_result.text = output.joinToString(", ") { it.toString() }
+//        val outputBuffer =
+//            TensorBuffer.createFixedSize(tflite.getOutputTensor(0).shape(), DataType.FLOAT32)
+//
+//        tflite.run(inputBuffer.buffer, outputBuffer.buffer)
+//        val output = outputBuffer.floatArray
+        //text_result.text = output.joinToString(", ") { it.toString() }
     }
 }
