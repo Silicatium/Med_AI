@@ -29,7 +29,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tflite : Interpreter
     private lateinit var tflitemodel : ByteBuffer
     private lateinit var text_result : TextView
-    private val classLabels = arrayOf("Акне", "Облысение", "Грибок ногтя", "Здоровая кожа", "Аллергическая реакция")
+    private val classLabels = arrayOf("Атопический дерматит", "Базалиома", "Кератома", "Экзема",
+        "Родинка", "Меланома", "Здоровая кожа", "Псориаз", "Себорейная кератоз",
+        "Грибковая инфекция", "Моллюск")
     private lateinit var image_view : ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
